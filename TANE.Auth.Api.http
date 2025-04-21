@@ -1,0 +1,6 @@
+@TANE.Auth.Api_HostAddress = http://localhost:5127
+
+GET {{TANE.Auth.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

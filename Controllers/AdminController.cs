@@ -41,6 +41,20 @@ namespace TANE.Auth.Api.Controllers
             return BadRequest(result.Errors);
         }
 
+        [HttpPost]
+        [Route("revoke-all")]
+        public async Task<IActionResult> RevokeAll()
+        {
+            var users = _userManager.Users.ToList();
+            foreach (var user in users)
+            {
+                user.RefreshToken = null;
+                await _userManager.UpdateAsync(user);
+            }
+
+            return NoContent();
+        }
+
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword(ResetPassword model)
         {

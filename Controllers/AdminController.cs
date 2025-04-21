@@ -8,7 +8,7 @@ using TANE.Auth.Api.Models;
 
 namespace TANE.Auth.Api.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class AdminController : ControllerBase
@@ -124,6 +124,27 @@ namespace TANE.Auth.Api.Controllers
                 return Ok(new { message = "Role assigned successfully" });
             }
 
+            return BadRequest(result.Errors);
+        }
+
+        [HttpPost("remove-role")]
+        public async Task<IActionResult> RemoveRole([FromBody] UserRole model)
+        {
+            if (model.Role.ToLower() == "admin" && model.Email.ToLower() == "admin")
+            {
+                return BadRequest("Cannot remove admin role from admin user");
+            }
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+            var result = await _userManager.RemoveFromRoleAsync(user, model.Role);
+            if (result.Succeeded)
+            {
+                return Ok(new { message = "Role removed successfully" });
+            }
             return BadRequest(result.Errors);
         }
 

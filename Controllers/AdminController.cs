@@ -40,7 +40,7 @@ namespace TANE.Auth.Api.Controllers
 
             return BadRequest(result.Errors);
         }
-
+        
         [HttpPost]
         [Route("revoke")]
         public async Task<IActionResult> Revoke([FromBody] Revoke model)
@@ -50,6 +50,20 @@ namespace TANE.Auth.Api.Controllers
 
             user.RefreshToken = null;
             await _userManager.UpdateAsync(user);
+
+            return NoContent();
+        }
+
+        [HttpPost]
+        [Route("revoke-all")]
+        public async Task<IActionResult> RevokeAll()
+        {
+            var users = _userManager.Users.ToList();
+            foreach (var user in users)
+            {
+                user.RefreshToken = null;
+                await _userManager.UpdateAsync(user);
+            }
 
             return NoContent();
         }

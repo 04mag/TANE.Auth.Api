@@ -62,5 +62,23 @@ namespace TANE.Auth.Api.Controllers
 
             return BadRequest(result.Errors);
         }
+
+        [HttpPost("assign-role")]
+        public async Task<IActionResult> AssignRole([FromBody] UserRole model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+
+            var result = await _userManager.AddToRoleAsync(user, model.Role);
+            if (result.Succeeded)
+            {
+                return Ok(new { message = "Role assigned successfully" });
+            }
+
+            return BadRequest(result.Errors);
+        }
     }
 }

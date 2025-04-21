@@ -14,11 +14,13 @@ namespace TANE.Auth.Api.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public AdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _configuration = configuration;
+            _roleManager = roleManager;
         }
 
         [HttpPost("register")]
@@ -106,6 +108,23 @@ namespace TANE.Auth.Api.Controllers
             }
 
             return BadRequest(result.Errors);
+        }
+
+        [HttpPost("add-role")]
+        public async Task<IActionResult> AddRole([FromBody] string role)
+        {
+            if (!await _roleManager.RoleExistsAsync(role))
+            {
+                var result = await _roleManager.CreateAsync(new IdentityRole(role));
+                if (result.Succeeded)
+                {
+                    return Ok(new { message = "Role added successfully" });
+                }
+
+                return BadRequest(result.Errors);
+            }
+
+            return BadRequest("Role already exists");
         }
     }
 }

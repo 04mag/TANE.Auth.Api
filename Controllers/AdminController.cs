@@ -41,6 +41,19 @@ namespace TANE.Auth.Api.Controllers
             return BadRequest(result.Errors);
         }
 
+        [HttpPost]
+        [Route("revoke")]
+        public async Task<IActionResult> Revoke([FromBody] Revoke model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null) return BadRequest("Invalid email");
+
+            user.RefreshToken = null;
+            await _userManager.UpdateAsync(user);
+
+            return NoContent();
+        }
+
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword(ResetPassword model)
         {

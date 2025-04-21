@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Tane.Auth.Api.Models;
 using TANE.Auth.Api.Entities;
+using TANE.Auth.Api.Models;
 
 namespace TANE.Auth.Api.Controllers
 {
@@ -13,13 +14,11 @@ namespace TANE.Auth.Api.Controllers
     public class AdminController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IConfiguration _configuration;
         private readonly RoleManager<IdentityRole> _roleManager;
 
         public AdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             _userManager = userManager;
-            _configuration = configuration;
             _roleManager = roleManager;
         }
 
@@ -42,7 +41,25 @@ namespace TANE.Auth.Api.Controllers
 
             return BadRequest(result.Errors);
         }
-        
+
+        [HttpPost("delete-user")]
+        public async Task<IActionResult> DeleteUser([FromBody] DeleteUser model)
+        {
+            if (model.Email.ToLower() == "admin")
+            {
+                return BadRequest("Cannot delete admin user");
+            }
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null) return BadRequest("Invalid email");
+            var result = await _userManager.DeleteAsync(user);
+            if (result.Succeeded)
+            {
+                return Ok(new { message = "User deleted successfully" });
+            }
+            return BadRequest(result.Errors);
+        }
+
         [HttpPost]
         [Route("revoke")]
         public async Task<IActionResult> Revoke([FromBody] Revoke model)

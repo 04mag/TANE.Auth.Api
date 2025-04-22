@@ -51,7 +51,7 @@ namespace TANE.Auth.Api.Controllers
                 _ = int.TryParse(_configuration["JWT:RefreshTokenValidityInDays"], out int refreshTokenValidityInDays);
 
                 user.RefreshToken = refreshToken;
-                user.RefreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
+                user.RefreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays).ToUniversalTime();
 
                 await _userManager.UpdateAsync(user);
 
@@ -60,7 +60,7 @@ namespace TANE.Auth.Api.Controllers
                 {
                     Token = new JwtSecurityTokenHandler().WriteToken(token),
                     RefreshToken = refreshToken,
-                    Expiration = token.ValidTo
+                    Expiration = user.RefreshTokenExpiryTime
                 });
             }
 

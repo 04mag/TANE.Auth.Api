@@ -83,28 +83,20 @@ namespace TANE.Auth.Api.Context
                 ConcurrencyStamp = Guid.NewGuid().ToString()
             };
 
-            //Hash the password for admin user
+            //Hash the password for test user
             user1.PasswordHash = ph.HashPassword(user1, "Test1234!");
 
-            //seed admin user
+            //seed test user
             modelBuilder.Entity<ApplicationUser>().HasData(user1);
 
-            //Add admin to admin role
-            var adminRole1 = new IdentityUserRole<string>
-            {
-                RoleId = adminRoleId,
-                UserId = user1Id
-            };
-
-            //Add admin to user role
+            //Add test to user role
             var userRole1 = new IdentityUserRole<string>
             {
                 RoleId = userRoleId,
                 UserId = user1Id
             };
 
-            //Seed roles to admin user
-            modelBuilder.Entity<IdentityUserRole<string>>().HasData(adminRole1);
+            //Seed roles to test user
             modelBuilder.Entity<IdentityUserRole<string>>().HasData(userRole1);
         }
     }

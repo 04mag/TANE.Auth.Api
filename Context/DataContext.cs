@@ -74,7 +74,7 @@ namespace TANE.Auth.Api.Context
 
             var user1 = new ApplicationUser
             {
-                Id = userId,
+                Id = user1Id,
                 UserName = username1,
                 NormalizedUserName = username1.ToUpper(),
                 Email = email1,

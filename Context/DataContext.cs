@@ -84,7 +84,7 @@ namespace TANE.Auth.Api.Context
             };
 
             //Hash the password for admin user
-            user.PasswordHash = ph.HashPassword(user1, "Test1234!");
+            user1.PasswordHash = ph.HashPassword(user1, "Test1234!");
 
             //seed admin user
             modelBuilder.Entity<ApplicationUser>().HasData(user1);

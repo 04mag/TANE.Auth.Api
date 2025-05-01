@@ -41,16 +41,16 @@ namespace TANE.Auth.Api
             }
 
             //Cors settings
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy("AllowAllOrigins",
-                    builder =>
-                    {
-                        builder.AllowAnyOrigin()
-                               .AllowAnyMethod()
-                               .AllowAnyHeader();
-                    });
-            });
+            //builder.Services.AddCors(options =>
+            //{
+            //    options.AddPolicy("AllowAllOrigins",
+            //        builder =>
+            //        {
+            //            builder.AllowAnyOrigin()
+            //                   .AllowAnyMethod()
+            //                   .AllowAnyHeader();
+            //        });
+            //});
 
             //Add Identity with settings for password
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -107,7 +107,7 @@ namespace TANE.Auth.Api
 
             app.UseHttpsRedirection();
 
-            app.UseCors("AllowAllOrigins");
+            //app.UseCors("AllowAllOrigins");
 
             app.UseAuthentication();
 

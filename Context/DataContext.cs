@@ -66,6 +66,46 @@ namespace TANE.Auth.Api.Context
             //Seed roles to admin user
             modelBuilder.Entity<IdentityUserRole<string>>().HasData(adminRole);
             modelBuilder.Entity<IdentityUserRole<string>>().HasData(userRole);
+
+            //Add test user
+            string user1Id = Guid.NewGuid().ToString();
+            string username1 = "Test";
+            string email1 = "Test";
+
+            var user1 = new ApplicationUser
+            {
+                Id = userId,
+                UserName = username1,
+                NormalizedUserName = username1.ToUpper(),
+                Email = email1,
+                NormalizedEmail = email1.ToUpper(),
+                EmailConfirmed = true,
+                ConcurrencyStamp = Guid.NewGuid().ToString()
+            };
+
+            //Hash the password for admin user
+            user.PasswordHash = ph.HashPassword(user1, "Test1234!");
+
+            //seed admin user
+            modelBuilder.Entity<ApplicationUser>().HasData(user1);
+
+            //Add admin to admin role
+            var adminRole1 = new IdentityUserRole<string>
+            {
+                RoleId = adminRoleId,
+                UserId = user1Id
+            };
+
+            //Add admin to user role
+            var userRole1 = new IdentityUserRole<string>
+            {
+                RoleId = userRoleId,
+                UserId = user1Id
+            };
+
+            //Seed roles to admin user
+            modelBuilder.Entity<IdentityUserRole<string>>().HasData(adminRole1);
+            modelBuilder.Entity<IdentityUserRole<string>>().HasData(userRole1);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace TANE.Auth.Api.Controllers
         {
             if (await _userManager.FindByEmailAsync(model.Email) != null)
             {
-                return BadRequest("User with provided email already exists");
+                return Conflict("User with provided email already exists");
             }
 
             var user = new ApplicationUser { UserName = Guid.NewGuid().ToString(), Email = model.Email };

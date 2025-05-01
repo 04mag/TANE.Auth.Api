@@ -16,10 +16,6 @@ namespace TANE.Auth.Api
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            //Sleep for at sikre at db kører inden den første forbindelse
-            Console.WriteLine("Sleeping for 30s to await dependent services starting");
-            Thread.Sleep(30000);
-
 
             //Add dbcontext and connection string
             builder.Services.AddDbContext<DataContext>(options =>
@@ -31,7 +27,17 @@ namespace TANE.Auth.Api
             using (var scope = builder.Services.BuildServiceProvider().CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<DataContext>();
-                context.Database.EnsureCreated();
+
+                try
+                {
+                    context.Database.EnsureCreated();
+                }
+                catch
+                {
+                    //Close app if database creation fails
+                    Console.WriteLine("Database creation failed");
+                    Environment.Exit(1);
+                }
             }
 
             //Cors settings

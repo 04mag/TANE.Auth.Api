@@ -16,11 +16,10 @@ namespace TANE.Auth.Api
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            //Sleep for at sikre at db kører inden den første forbindelse
+            Console.WriteLine("Sleeping for 30s to await dependent services starting");
+            Thread.Sleep(30000);
 
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
 
             //Add dbcontext and connection string
             builder.Services.AddDbContext<DataContext>(options =>
@@ -34,6 +33,18 @@ namespace TANE.Auth.Api
                 var context = scope.ServiceProvider.GetRequiredService<DataContext>();
                 context.Database.EnsureCreated();
             }
+
+            //Cors settings
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllOrigins",
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                               .AllowAnyMethod()
+                               .AllowAnyHeader();
+                    });
+            });
 
             //Add Identity with settings for password
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -74,6 +85,11 @@ namespace TANE.Auth.Api
                 options.AddPolicy("UserPolicy", policy => policy.RequireRole("User"));
             });
 
+            builder.Services.AddControllers();
+            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -84,6 +100,8 @@ namespace TANE.Auth.Api
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors("AllowAllOrigins");
 
             app.UseAuthentication();
 

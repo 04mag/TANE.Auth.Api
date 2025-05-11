@@ -166,5 +166,26 @@ namespace TANE.Auth.Api.Controllers
             return principal;
 
         }
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(ResetPassword model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            var result = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
+
+            if (result.Succeeded)
+            {
+                return Ok(new { message = "Password changed successfully" });
+            }
+
+            return BadRequest(result.Errors);
+        }
     }
 }

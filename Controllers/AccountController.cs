@@ -143,7 +143,7 @@ namespace TANE.Auth.Api.Controllers
 
                 if (!currentPasswordIsValid)
                 {
-                    return Conflict("Current password is incorrect");
+                    return Conflict("Current password is invalid");
                 }
 
                 // Update password

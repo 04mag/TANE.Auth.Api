@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -123,14 +124,13 @@ namespace TANE.Auth.Api.Controllers
             });
         }
 
-        //Endpoint to change password  
+        [Authorize]
         [HttpPost("update-password")]
         public async Task<IActionResult> ChangePassword([FromBody] UpdatePassword model)
         {
-
-            //Get user from token
             try
             {
+                // Get the user from the token
                 var principal = GetPrincipalFromValidToken(model.Token);
                 var user = await _userManager.FindByEmailAsync(principal!.Identity!.Name!);
 
@@ -139,13 +139,16 @@ namespace TANE.Auth.Api.Controllers
                     return BadRequest("User not found");
                 }
 
+                // Update password
                 var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
 
                 if (result.Succeeded)
                 {
+                    //Return if success
                     return Ok(new { message = "Password changed successfully" });
                 }
 
+                //Return list of errors
                 return BadRequest(result.Errors);
             }
             catch

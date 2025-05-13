@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Tane.Auth.Api.Models;
 using TANE.Auth.Api.Entities;
+using TANE.Auth.Api.Models;
 
 namespace TANE.Auth.Api.Controllers
 {
@@ -122,6 +123,37 @@ namespace TANE.Auth.Api.Controllers
             });
         }
 
+        //Endpoint to change password  
+        [HttpPost("update-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] UpdatePassword model)
+        {
+
+            //Get user from token
+            try
+            {
+                var principal = GetPrincipalFromValidToken(model.Token);
+                var user = await _userManager.FindByEmailAsync(principal!.Identity!.Name!);
+
+                if (user == null)
+                {
+                    return BadRequest("User not found");
+                }
+
+                var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+
+                if (result.Succeeded)
+                {
+                    return Ok(new { message = "Password changed successfully" });
+                }
+
+                return BadRequest(result.Errors);
+            }
+            catch
+            {
+                return BadRequest("Invalid token");
+            }
+        }
+
         private JwtSecurityToken CreateToken(List<Claim> authClaims)
         {
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? _configuration["JWT:Key"]));
@@ -166,6 +198,30 @@ namespace TANE.Auth.Api.Controllers
             return principal;
 
         }
+
+        private ClaimsPrincipal? GetPrincipalFromValidToken(string? token)
+        {
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET_KEY") ?? _configuration["JWT:Key"])),
+                ValidateLifetime = true
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+
+            if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new SecurityTokenException("Invalid token");
+            }
+
+            return principal;
+        }
+
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword(ResetPassword model)
         {

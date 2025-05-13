@@ -139,6 +139,13 @@ namespace TANE.Auth.Api.Controllers
                     return BadRequest("User not found");
                 }
 
+                var currentPasswordIsValid = await _userManager.CheckPasswordAsync(user, model.CurrentPassword);
+
+                if (!currentPasswordIsValid)
+                {
+                    return Conflict("Current password is incorrect");
+                }
+
                 // Update password
                 var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
 
